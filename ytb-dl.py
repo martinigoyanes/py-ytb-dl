@@ -1,15 +1,15 @@
-import spotify, song
+import spotify, song as songlib
 
 def json_to_song_list(json_data):
     song_list = []
-    index = 0
     for item in json_data['items']:
-        song_name = json_data['items'][index]['name']
-        song_artist = json_data['items'][index]['artists'][0]['name']
-        song = song.Song(name=song_name,video_url='',artist=song_artist)
+        song_name = item['track']['name']
+        song_artists = []
+        for artist in item['track']['artists']:
+            song_artists.append(artist['name'])
+        song = songlib.Song(name=song_name,video_url='',artists=song_artists)
         song_list.append(song)
-        index += 1
-        
+    return song_list    
 
 video_url = ['https://www.youtube.com/watch?v=oNg3M9IJJlY']
 
@@ -21,5 +21,7 @@ client_secret = '2da4af43872a462ab652f579aa4b9d04'
 spoti = spotify.Spotify(client_id,client_secret)
 spoti.get_auth_code()
 spoti.get_tokens()
-json = spoti.get_tracks_json()
+saved_tracks = spoti.get_tracks_json(limit=50)
+
+song_list = json_to_song_list(saved_tracks)
 print('hola')
