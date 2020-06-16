@@ -1,7 +1,7 @@
-import youtube_dl
+import youtube_dl, time
 from googleapiclient.discovery import build
 
-YB_API_KEY = 'AIzaSyB03vuHLAD9t05azz8qjv-bfdgtgZwhjY0'
+YB_API_KEY = 'AIzaSyD6cQWDR1VZpeVylYtDY5Q3I0jopaIyokg'
 
 class Song:
     artists = []
@@ -25,5 +25,19 @@ class Song:
 
     def search(self):
         youtube = build('youtube', 'v3', developerKey=YB_API_KEY)
-        req = youtube.search().list(part='id', q=self.name, maxResults=25, type='video')
-        resp = req.execute()
+        query = self.name 
+        for artist in self.artists:
+            query = query + " " + artist
+        query = query + " Official Audio"
+        req = youtube.search().list(part='id', q=query,
+                                    maxResults=1,type='video',
+                                    fields='items/id/videoId')
+        resp = req.execute() 
+        video_id = resp['items'][0]['id']['videoId']
+        self.video_url = [f'https://www.youtube.com/watch?v={video_id}']
+    
+    def thread_handler(self):
+        """ self.search()
+        self.download() """
+        time.sleep(3)
+        print("thread running")

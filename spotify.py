@@ -1,8 +1,7 @@
-import webbrowser
-import requests
-import base64
+import webbrowser, requests, base64, time
 
-from urllib.parse import urlencode
+from urllib.parse import urlencode, urlsplit
+from selenium import webdriver
 
 class Spotify:
     id = None
@@ -21,14 +20,21 @@ class Spotify:
         auth_body = {
             'client_id': self.id,
             'response_type': 'code',
-            'redirect_uri': 'http://localhost:8888/callback',
+            'redirect_uri': 'https://www.spotify.com/es/',
             'scope': 'user-library-read'
         }
         auth_body_urlencoded = urlencode(auth_body)
         auth_url = f"{auth_endpoint}?{auth_body_urlencoded}"
-        # TODO: Automate the process of getting an authorization code maybe with selenium
-        webbrowser.open(auth_url)
-        self.auth_code = input('Authentication code:\n')
+        # webbrowser.open(auth_url)
+        # self.auth_code = input('Authentication code:\n')
+        driver = webdriver.Chrome()
+        driver.get(auth_url)
+        code_url = '' 
+        code = urlsplit(code_url)
+        while 'code=' not in code.query: 
+            code_url = driver.current_url
+            code = urlsplit(code_url)
+        self.auth_code = code.query.replace('code=','')
 
     def get_tokens(self):
         tokens_endpoint = 'https://accounts.spotify.com/api/token'
