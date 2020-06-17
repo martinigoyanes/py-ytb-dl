@@ -61,7 +61,6 @@ class Spotify:
             # Authorization: Bearer {your access token}
             'Authorization': f'Bearer {self.access_token}'
         }
-        # TODO: Use the limit and offset parameters to get the whole list of saved songs
         user_tracks_body = {
             'limit': limit
         }
