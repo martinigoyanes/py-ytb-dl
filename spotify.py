@@ -35,13 +35,14 @@ class Spotify:
             code_url = driver.current_url
             code = urlsplit(code_url)
         self.auth_code = code.query.replace('code=','')
+        driver.quit()
 
     def get_tokens(self):
         tokens_endpoint = 'https://accounts.spotify.com/api/token'
         tokens_body = {
             'grant_type': 'authorization_code',
             'code': self.auth_code,
-            'redirect_uri': 'http://localhost:8888/callback'
+            'redirect_uri': 'https://www.spotify.com/es/'
         }
         client_creds_b64 = base64.b64encode(f'{self.id}:{self.secret}'.encode())
         tokens_headers = {
