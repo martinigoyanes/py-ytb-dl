@@ -40,7 +40,7 @@ class Song:
         video_id = resp['items'][0]['id']['videoId']
         self.video_url = [f'https://www.youtube.com/watch?v={video_id}']
 
-    def thread_handler(self, youtube, song_list_len):
+    def thread_handler(self, youtube,song_list_len):
         self.search(youtube)
         self.download()
         
