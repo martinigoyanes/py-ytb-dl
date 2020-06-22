@@ -52,10 +52,7 @@ class Song:
         downloader.download(self.video_url)
 
     def search(self):
-        query = self.name
-        for artist in self.artists:
-            query = query + " " + artist
-        query = query + " Official Audio"
+        query = self.fullname + " Official Audio"
         req = config.youtube.search().list(part='id', q=query,
                                     maxResults=1, type='video',
                                     fields='items/id/videoId')
@@ -64,17 +61,25 @@ class Song:
         self.video_url = [f'https://www.youtube.com/watch?v={video_id}']
         
         # For debugging
-        with config.url_file_lock and open('video_urls.txt', 'a+') as url_file:
-            # url_file.write(f'{self.name} %% {self.artists} %% {self.metadata["album"]} %% {self.metadata["cover"]} %% {self.video_url}\n')       
-            url_file.write(f'{self.name} %% {self.artists} %% {self.video_url}\n')       
+        # album = self.metadata['album']
+        # cover_url = self.metadata['cover_url']
+        # with config.url_file_lock and open('video_urls.txt', 'a+') as url_file:
+        #     url_file.write(f'{self.name} %% {self.artists} %% {album} %% {cover_url} %% {self.video_url}\n')       
 
     def thread_handler(self, song_list_len,verbose):
         try:
-            self.search()
-            # self.download(song_list_len, verbose=verbose)
-        except Exception:
-            print(f'ERROR: Could NOT download {self.fullname}.\n') 
-            
+            # self.search()
+            pass
+        except Exception as e:
+            print(f'ERROR while searching for {self.fullname}. Reason -> {str(e)}\n') 
+            self.failed = True
+            with config.started_songs_lock:
+                config.started_songs -= 1
+                return
+        try:
+            self.download(song_list_len, verbose=verbose)
+        except Exception as e:
+            print(f'ERROR: Could NOT download {self.fullname}. Reason -> {str(e)}\n') 
             # If there is any error downloading write the problematic song name %% artist %% videourl to file
             # with config.error_file_lock and open('failed_songs.txt', 'a+') as error_file:
             #     error_file.write(f'{self.name} %% {self.artists} %% {self.video_url}\n')       

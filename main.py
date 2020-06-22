@@ -5,7 +5,7 @@ import time, helper, threading, config, spotify, song as Song
 # TODO: Automatically run behind the scenes and download the new songs u add to spoti
 
 #* Use 1st key first time, and if we need to download more stuff change keynum to 2 so we use the second key
-config.init_globals(keynum=1)
+config.init_globals(keynum=2)
 verbose = False
 
 spoti = spotify.Spotify(config.client_id,config.client_secret)
@@ -15,8 +15,8 @@ spoti.get_tokens()
 last_song = input('What is the last song (inclusive) from your library to download?\n')
 song_list = helper.pull_user_songs(last_song, spoti)
 
-### For testing with the url set i have
-###################################
+## For testing with the url set i have
+##################################
 # song_list = []
 # with open('video_urls.txt') as fp:
 #     for _ in range(98):
@@ -35,9 +35,9 @@ song_list = helper.pull_user_songs(last_song, spoti)
 #             index += 1
 #         # Parsing url data
 #         url = [song_data[2][2:-2]] 
-#         song = Song.Song(song_name,url,artists)
+#         song = Song.Song(song_name,url,artists,None,None)
 #         song_list.append(song)
-###################################
+##################################
 #* Download untill all of the songs are downloaded
 while True:
     #* If all songs have been downloaded just quit
