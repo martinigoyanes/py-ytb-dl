@@ -1,24 +1,36 @@
 import youtube_dl
 import time
 import config
+import glob
+import os
 
 
 
 class Song:
     artists = []
-
-    def __init__(self, name, video_url, artists):
+    metadata = dict()
+    def __init__(self, name, video_url, artists, cover, album):
         self.name = name
         self.video_url = video_url
         self.artists = artists
         self.downloaded = False
+        self.fullname = name 
+        for artist in artists:
+            self.fullname += f' - {artist}'
+        self.fullpath = f'/Users/martin/Desktop/{self.fullname}.%(ext)s' 
+        self.thread = None
+        self.failed = False
+        self.metadata = {
+            'cover_url': cover,
+            'album':album
+        }
 
     # * Downloads video from youtube and transforms it into mp3 file, deletes original video
-    def download(self,verbose=True):
-        outformat = f'/Users/martin/Desktop/{self.name}'
-        for artist in self.artists:
-            outformat += f' - {artist}'
-        outformat += '.%(ext)s'
+    def download(self,song_list_len,verbose=True):
+        with config.started_songs_lock:
+            config.started_songs += 1
+            print( self.name +" has started. [" + str(config.started_songs) + "/" +
+                  str(song_list_len) + "]" + " songs started downloading....")
 
         params = {
             'format': 'bestaudio/best',
@@ -28,11 +40,14 @@ class Song:
                 'preferredquality': '192',
             },
             ],
-            'outtmpl' : outformat,
+            'outtmpl' : self.fullpath,
             'retries': 10,
-            'quiet': not verbose 
+            'quiet': not verbose
         }
 
+        if self.failed is True:
+            print(f'Retrying {self.fullname} ....')
+            
         downloader = youtube_dl.YoutubeDL(params)
         downloader.download(self.video_url)
 
@@ -47,30 +62,47 @@ class Song:
         resp = req.execute()
         video_id = resp['items'][0]['id']['videoId']
         self.video_url = [f'https://www.youtube.com/watch?v={video_id}']
+        
         # For debugging
-        with config.url_file_lock and open('vide_urls.txt', 'a+') as url_file:
-            url_file.write(f'{self.name} - {self.artists} - {self.video_url}\n')       
+        with config.url_file_lock and open('video_urls.txt', 'a+') as url_file:
+            # url_file.write(f'{self.name} %% {self.artists} %% {self.metadata["album"]} %% {self.metadata["cover"]} %% {self.video_url}\n')       
+            url_file.write(f'{self.name} %% {self.artists} %% {self.video_url}\n')       
 
-    def thread_handler(self, song_list_len):
-        # self.search()
-        #* If there is any error downloading write the problematic song name - artist - videourl to file
+    def thread_handler(self, song_list_len,verbose):
         try:
-            self.download()
+            self.search()
+            # self.download(song_list_len, verbose=verbose)
         except Exception:
-            print(f'ERROR: Could NOT download {self.name} - {self.artists}\n') 
-            with config.error_file_lock and open('failed_songs.txt', 'a+') as error_file:
-                error_file.write(f'{self.name} - {self.artists} - {self.video_url}\n')       
+            print(f'ERROR: Could NOT download {self.fullname}.\n') 
+            
+            # If there is any error downloading write the problematic song name %% artist %% videourl to file
+            # with config.error_file_lock and open('failed_songs.txt', 'a+') as error_file:
+            #     error_file.write(f'{self.name} %% {self.artists} %% {self.video_url}\n')       
+
+            #* There has been an error so remove any data that has been downloaded so in next iter there's no confusion
+            self.failed = True
+            with config.started_songs_lock:
+                config.started_songs -= 1
+
+            fileList = glob.glob(f'/Users/martin/Desktop/{self.fullname}*')
+            for filePath in fileList:
+                try:
+                    os.remove(filePath)
+                    if verbose:
+                        print(f'Deleted {filePath}\n')
+
+                except:
+                    print("Error while deleting file : ", filePath)
+
         
         else:
+            self.downloaded = True
             with config.downloaded_songs_lock:
-                self.downloaded = True
                 config.downloaded_songs += 1
                 
-                print( '\"' + self.name + '\" downloaded.')
-                
                 if config.downloaded_songs < song_list_len:
-                    print( "[" + str(config.downloaded_songs) + "/" + str(song_list_len) + "]" + " songs downloading....")
+                    print(  "\"" + self.name + "\" downloaded. [" + str(config.downloaded_songs) + "/" + str(song_list_len) + "]" + " songs downloaded....")
                 else:
-                    print("Finished downloading " + str(song_list_len) + " songs")
+                    print("\"" + self.name + "\" downloaded. Finished downloading " + str(song_list_len) + " songs")
 
         
