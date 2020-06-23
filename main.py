@@ -1,12 +1,11 @@
 import time, helper, threading, config, spotify, song as Song
-# TODO: Get album data to have covers
 # TODO: Add graphical interface
 # TODO: Parse the verbose option correctly
 # TODO: Automatically run behind the scenes and download the new songs u add to spoti
 
 #* Use 1st key first time, and if we need to download more stuff change keynum to 2 so we use the second key
 config.init_globals(keynum=2)
-verbose = True
+verbose = False
 
 spoti = spotify.Spotify(config.client_id,config.client_secret)
 spoti.get_auth_code()
@@ -19,7 +18,7 @@ song_list = helper.pull_user_songs(last_song, spoti)
 ##################################
 # song_list = []
 # with open('video_urls.txt') as fp:
-#     for _ in range(98):
+#     for _ in range(42):
 #         song_data = fp.readline()[:-1].split(' %% ')
 #         # Parsing song name
 #         song_name = song_data[0]
@@ -33,9 +32,13 @@ song_list = helper.pull_user_songs(last_song, spoti)
 #             else:
 #                 artists[i] = artists[i][2:-1]
 #             index += 1
+#         # Parsing album name
+#         song_album = song_data[2]
+#         # Parsing album cover url
+#         song_cover = song_data[3]
 #         # Parsing url data
-#         url = [song_data[2][2:-2]] 
-#         song = Song.Song(song_name,url,artists,None,None)
+#         url = [song_data[4][2:-2]] 
+#         song = Song.Song(song_name,url,artists,song_cover,song_album)
 #         song_list.append(song)
 ##################################
 #* Download untill all of the songs are downloaded

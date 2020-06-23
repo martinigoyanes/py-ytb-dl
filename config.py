@@ -4,15 +4,18 @@ import os
 from googleapiclient.discovery import build
 
 global downloaded_songs, downloaded_songs_lock, started_songs, started_songs_lock, error_file_lock, url_file_lock, youtube, client_id, client_secret
+global youtube_lock
 
 
 def init_globals(keynum):
     global downloaded_songs, downloaded_songs_lock,started_songs, started_songs_lock, error_file_lock, url_file_lock, youtube, client_id, client_secret
+    global youtube_lock
 
     downloaded_songs_lock = threading.Lock()
     started_songs_lock = threading.Lock()
     error_file_lock = threading.Lock()
     url_file_lock = threading.Lock()
+    youtube_lock = threading.Lock()
     downloaded_songs = 0
     started_songs = 0
     client_id = 'c6c3f6355e3349ce8160f0f2504e442b'

@@ -47,7 +47,7 @@ class Song:
             ],
             'outtmpl' : self.outtemplate,
             'retries': 10,
-            # 'quiet': not verbose
+            'quiet': not verbose
         }
 
         if self.failed is True:
@@ -58,29 +58,30 @@ class Song:
 
     def search(self):
         query = self.fullname + " Official Audio"
-        req = config.youtube.search().list(part='id', q=query,
-                                    maxResults=1, type='video',
-                                    fields='items/id/videoId')
-        resp = req.execute()
+        with config.youtube_lock:
+            req = config.youtube.search().list(part='id', q=query,
+                                        maxResults=1, type='video',
+                                        fields='items/id/videoId')
+            resp = req.execute()
         video_id = resp['items'][0]['id']['videoId']
         self.video_url = [f'https://www.youtube.com/watch?v={video_id}']
         
         # For debugging
-        # album = self.metadata['album']
-        # cover_url = self.metadata['cover_url']
-        # with config.url_file_lock and open('video_urls.txt', 'a+') as url_file:
-        #     url_file.write(f'{self.name} %% {self.artists} %% {album} %% {cover_url} %% {self.video_url}\n')       
+        album = self.metadata['album']
+        cover_url = self.metadata['cover_url']
+        with config.url_file_lock and open('video_urls.txt', 'a+') as url_file:
+            url_file.write(f'{self.name} %% {self.artists} %% {album} %% {cover_url} %% {self.video_url}\n')       
 
     def thread_handler(self, song_list_len,verbose):
-        # try:
-        #     # self.search()
-        #     pass
-        # except Exception as e:
-        #     print(f'ERROR while searching for {self.fullname}. Reason -> {str(e)}\n') 
-        #     self.failed = True
-        #     with config.started_songs_lock:
-        #         config.started_songs -= 1
-        #         return
+        try:
+            self.search()
+            pass
+        except Exception as e:
+            print(f'ERROR while searching for {self.fullname}. Reason -> {str(e)}\n') 
+            self.failed = True
+            with config.started_songs_lock:
+                config.started_songs -= 1
+                return
         try:
             self.download(song_list_len, verbose=verbose)
         except Exception as e:
@@ -114,7 +115,7 @@ class Song:
                     print(  "\"" + self.name + "\" downloaded. [" + str(config.downloaded_songs) + "/" + str(song_list_len) + "]" + " songs downloaded....")
                 else:
                     print("\"" + self.name + "\" downloaded. Finished downloading " + str(song_list_len) + " songs")
-            # self.add_metadata()
+            self.add_metadata()
         
     def add_metadata(self):
         print("Adding metadata to \"" + self.fullname + "\"")
@@ -126,10 +127,10 @@ class Song:
         
         audio = EasyMP3(self.fullpath, ID3=ID3)
 
-        try:
-            audio.add_tags()
-        except _util.error:
-            print("ERROR: Could NOT \"add_tags()\" for \"" + self.fullname + "\"")
+        # try:
+        #     audio.add_tags()
+        # except _util.error:
+        #     print("ERROR: Could NOT \"add_tags()\" for \"" + self.fullname + "\"")
         
         audio.tags.add(
             APIC(
@@ -142,7 +143,7 @@ class Song:
         )
         audio.save()
         
-        print("Added album cover to \""+self.fullname+"\"")
+        # print("Added album cover to \""+self.fullname+"\"")
 
         #* Add album info
         tags = EasyMP3(self.fullpath)
