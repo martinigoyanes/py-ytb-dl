@@ -33,13 +33,13 @@ def json_to_song_list(json_data, last_song, song_list):
 
 
 # * Pull song untill desired (inclusively) song from SPOTI
-def pull_user_songs(last_song, spoti):
+def pull_user_songs(last_song):
     finished = False
     limit = 20
     offset = 0
     song_list = []
     while finished is False:
-        spoti_saved_tracks = spoti.get_tracks_json(limit=limit, offset=offset)
+        spoti_saved_tracks = config.spoti.get_tracks_json(limit=limit, offset=offset)
         finished = json_to_song_list(spoti_saved_tracks, last_song, song_list)
         offset += 20
     return song_list

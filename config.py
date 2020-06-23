@@ -2,16 +2,20 @@ import threading
 import helper
 import os
 from googleapiclient.discovery import build
+import spotify
 
 global downloaded_songs, downloaded_songs_lock, started_songs, started_songs_lock, error_file_lock, url_file_lock, youtube, client_id, client_secret
 global youtube_lock
 global debug
+global spoti
 
 
+# Inits global variables and locks, and gets access tokens for Spotify and Youtube APIs
 def init_globals(keynum, DEBUG=False):
     global downloaded_songs, downloaded_songs_lock,started_songs, started_songs_lock, error_file_lock, url_file_lock, youtube, client_id, client_secret
     global youtube_lock
     global debug
+    global spoti
 
     downloaded_songs_lock = threading.Lock()
     started_songs_lock = threading.Lock()
@@ -28,6 +32,10 @@ def init_globals(keynum, DEBUG=False):
     # Use 1st key first time, and if we need to download more stuff change keynum to 2 so we use the second key
     ytb_key = helper.read_ytb_key('keys.txt', keynum=keynum)
     youtube = build('youtube', 'v3', developerKey=ytb_key)
+    
+    spoti = spotify.Spotify(client_id,client_secret)
+    spoti.get_auth_code()
+    spoti.get_tokens()
 
     # * Delete failed_songs file and if exist at the beginning
     if os.path.exists('failed_songs.txt'):

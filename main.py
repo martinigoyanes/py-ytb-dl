@@ -3,31 +3,28 @@ import time, helper, threading, config, spotify, song as Song
 # TODO: Parse the verbose option correctly
 # TODO: Automatically run behind the scenes and download the new songs u add to spoti
 
-verbose = False
+VERBOSE = False
 DEBUG = False
-#* Use 1st key first time, and if we need to download more stuff change keynum to 2 or 3 so we use the second key
+OUT_FOLDER = 'Users/martin/Desktop'
+#! Use 1st key first time, and if we need to download more stuff change keynum to 2 or 3 so we use the second key
 config.init_globals(keynum=1,DEBUG=DEBUG)
 
-spoti = spotify.Spotify(config.client_id,config.client_secret)
-spoti.get_auth_code()
-spoti.get_tokens()
 
 last_song = input('What is the last song (inclusive) from your library to download?\n')
-song_list = helper.pull_user_songs(last_song, spoti)
+song_list = helper.pull_user_songs(last_song)
 
-#* Download untill all of the songs are downloaded
+# Keep downloading untill all of the songs are downloaded
+# If all songs have been downloaded just quit
+# Launch all threads to start downloading each song
+# Wait for all launched threads to quit before retrying to download any song
+# If there is any error write the problematic song name %% artist %% videourl to file
 while True:
-    #* If all songs have been downloaded just quit
     with config.downloaded_songs_lock:
         if config.downloaded_songs == len(song_list):
             break
-    #* Launch all threads to start downloading each song
-    helper.download_songs(song_list, verbose=verbose)
-
-    #* Wait for all launched threads to quit before retrying to download any song
+    helper.download_songs(song_list, verbose=VERBOSE) 
     for song in song_list:
         if config.debug and song.failed:
-            #* If there is any error write the problematic song name %% artist %% videourl to file
             with config.error_file_lock and open('failed_songs.txt', 'a+') as error_file:
                 error_file.write(f'{song.name} %% {song.artists} %% {song.video_url}\n')       
         song.thread.join()
