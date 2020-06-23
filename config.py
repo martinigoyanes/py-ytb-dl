@@ -5,11 +5,13 @@ from googleapiclient.discovery import build
 
 global downloaded_songs, downloaded_songs_lock, started_songs, started_songs_lock, error_file_lock, url_file_lock, youtube, client_id, client_secret
 global youtube_lock
+global debug
 
 
-def init_globals(keynum):
+def init_globals(keynum, DEBUG=False):
     global downloaded_songs, downloaded_songs_lock,started_songs, started_songs_lock, error_file_lock, url_file_lock, youtube, client_id, client_secret
     global youtube_lock
+    global debug
 
     downloaded_songs_lock = threading.Lock()
     started_songs_lock = threading.Lock()
@@ -20,6 +22,7 @@ def init_globals(keynum):
     started_songs = 0
     client_id = 'c6c3f6355e3349ce8160f0f2504e442b'
     client_secret = '2da4af43872a462ab652f579aa4b9d04'
+    debug = DEBUG
 
     #! Store keys in file which doesnt go to github so my keys are not stolen
     # Use 1st key first time, and if we need to download more stuff change keynum to 2 so we use the second key

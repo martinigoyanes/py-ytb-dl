@@ -3,9 +3,8 @@ import time
 import config
 import glob
 import os
-from mutagen.id3 import ID3, APIC, USLT, _util
+from mutagen.id3 import ID3, APIC
 from mutagen.mp3 import EasyMP3
-from mutagen import File
 from urllib.request import urlopen
 
 
@@ -67,10 +66,11 @@ class Song:
         self.video_url = [f'https://www.youtube.com/watch?v={video_id}']
         
         # For debugging
-        album = self.metadata['album']
-        cover_url = self.metadata['cover_url']
-        with config.url_file_lock and open('video_urls.txt', 'a+') as url_file:
-            url_file.write(f'{self.name} %% {self.artists} %% {album} %% {cover_url} %% {self.video_url}\n')       
+        if config.debug:
+            album = self.metadata['album']
+            cover_url = self.metadata['cover_url']
+            with config.url_file_lock and open('video_urls.txt', 'a+') as url_file:
+                url_file.write(f'{self.name} %% {self.artists} %% {album} %% {cover_url} %% {self.video_url}\n')       
 
     def thread_handler(self, song_list_len,verbose):
         try:
@@ -81,14 +81,12 @@ class Song:
             self.failed = True
             with config.started_songs_lock:
                 config.started_songs -= 1
-                return
+            return
         try:
             self.download(song_list_len, verbose=verbose)
         except Exception as e:
             print(f'ERROR: Could NOT download {self.fullname}. Reason -> {str(e)}\n') 
-            # If there is any error downloading write the problematic song name %% artist %% videourl to file
-            # with config.error_file_lock and open('failed_songs.txt', 'a+') as error_file:
-            #     error_file.write(f'{self.name} %% {self.artists} %% {self.video_url}\n')       
+
 
             #* There has been an error so remove any data that has been downloaded so in next iter there's no confusion
             self.failed = True
@@ -124,6 +122,7 @@ class Song:
             cover_img = urlopen(self.metadata['cover_url'])
         except:
             print("ERROR: Could NOT get album cover for \"" + self.fullname + "\"")
+            self.failed = True
         
         audio = EasyMP3(self.fullpath, ID3=ID3)
 
