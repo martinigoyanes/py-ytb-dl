@@ -22,7 +22,9 @@ def json_to_song_list(json_data, last_song, song_list):
             song_artists.append(artist['name'])
         song_cover = item['track']['album']['images'][1]['url']
         song_album = item['track']['album']['name']
-        song = Song.Song(name=song_name, video_url='', artists=song_artists, cover=song_cover, album=song_album)
+        song_len_ms   = item['track']['duration_ms']
+        song = Song.Song(name=song_name, video_url='', artists=song_artists,
+                         cover=song_cover, album=song_album, len_ms=song_len_ms)
         song_list.append(song)
         # Last song to download inclusively
         if song_name in last_song:

@@ -12,7 +12,7 @@ from urllib.request import urlopen
 class Song:
     artists = []
     metadata = dict()
-    def __init__(self, name, video_url, artists, cover, album):
+    def __init__(self, name, video_url, artists, cover, album, len_ms):
         self.name = name
         self.video_url = video_url
         self.artists = artists
@@ -28,6 +28,7 @@ class Song:
             'cover_url': cover,
             'album':album
         }
+        self.len_ms = len_ms
 
     # * Downloads video from youtube and transforms it into mp3 file, deletes original video
     def download(self,song_list_len,verbose=True):
@@ -141,11 +142,22 @@ class Song:
             )
         )
         audio.save()
-        
+
         # print("Added album cover to \""+self.fullname+"\"")
 
         #* Add album info
         tags = EasyMP3(self.fullpath)
         tags["album"] = self.metadata['album']
+        tags["artist"] = self.artists
         tags.save()
         
+        #* If song downloaded is 20 seconds longer than the Spotify version log it to a file and warn us 
+        # (audio.len is in secs and spotify.len is in MILIsecs)
+        if abs((self.len_ms/1000) - audio.info.length) > 20:
+            with config.longsongs_file_lock and open('long_songs.txt', 'a+') as longsongs_file:
+                print(f'WARNING: {self.fullname} might be too long') 
+                longsongs_file.write(f'{self.name} %% {self.artists} %% {self.metadata["album"]} %% {self.video_url}\n')       
+                
+
+
+            

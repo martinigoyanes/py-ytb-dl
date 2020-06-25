@@ -16,11 +16,14 @@ def init_globals(keynum, DEBUG=False):
     global youtube_lock
     global debug
     global spoti
+    global longsongs_file_lock
+    
 
     downloaded_songs_lock = threading.Lock()
     started_songs_lock = threading.Lock()
     error_file_lock = threading.Lock()
     url_file_lock = threading.Lock()
+    longsongs_file_lock = threading.Lock()
     youtube_lock = threading.Lock()
     downloaded_songs = 0
     started_songs = 0
@@ -40,3 +43,5 @@ def init_globals(keynum, DEBUG=False):
     # * Delete failed_songs file and if exist at the beginning
     if os.path.exists('failed_songs.txt'):
         os.remove('failed_songs.txt')
+    if os.path.exists('long_songs.txt'):
+        os.remove('long_songs.txt')
