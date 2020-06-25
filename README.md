@@ -8,8 +8,8 @@ optional arguments:
 
   -h, --help<pre></pre>show this help message and exit
   
-  --DEBUGG<pre>                         </pre>Runs the program in debugg mode.
+  --DEBUGG<pre></pre>Runs the program in debugg mode.
   
-  -v, --verbose<pre>                    </pre>Program logs to screen every action it takes.
+  -v, --verbose<pre></pre>Program logs to screen every action it takes.
   
-  -o OUTPUT, --output OUTPUT<pre>       </pre>Select destiation FOLDER of downloaded files. Default: /Users/[$username]/Desktop/
+  -o OUTPUT, --output OUTPUT<pre></pre>Select destiation FOLDER of downloaded files. Default: /Users/[$username]/Desktop/
