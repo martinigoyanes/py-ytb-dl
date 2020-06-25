@@ -3,7 +3,7 @@ import time, helper, threading, config, spotify, song as Song
 # TODO: Automatically run behind the scenes and download the new songs u add to spoti
 
 #! Use 1st key first time, and if we need to download more stuff change keynum to 2 or 3 so we use the second key
-config.init_globals(keynum=2)
+config.init_globals(keynum=1)
 
 
 last_song = input('What is the last song (inclusive) from your library to download?\n')
