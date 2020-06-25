@@ -6,10 +6,10 @@ Python app that takes your spotify saved songs and downloads them from youtube t
 
 optional arguments:
 
-  -h, --help<pre></pre>show this help message and exit
+  -h, --help &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; show this help message and exit
   
-  --DEBUGG<pre></pre>Runs the program in debugg mode.
+  --DEBUGG &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; Runs the program in debugg mode.
   
-  -v, --verbose<pre></pre>Program logs to screen every action it takes.
+  -v, --verbose &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; Program logs to screen every action it takes.
   
-  -o OUTPUT, --output OUTPUT<pre></pre>Select destiation FOLDER of downloaded files. Default: /Users/[$username]/Desktop/
+  -o OUTPUT, --output OUTPUT &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; Select destiation FOLDER of downloaded files. Default: /Users/[$username]/Desktop/
