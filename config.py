@@ -4,10 +4,19 @@ import os
 from googleapiclient.discovery import build
 import spotify
 
-global downloaded_songs, downloaded_songs_lock, started_songs, started_songs_lock, error_file_lock, url_file_lock, youtube, client_id, client_secret
-global youtube_lock
-global debug
-global spoti
+downloaded_songs= None
+downloaded_songs_lock= None
+started_songs= None
+started_songs_lock= None
+error_file_lock= None
+url_file_lock= None
+youtube= None
+youtube_lock= None 
+client_id= None
+client_secret= None
+debug = None
+spoti = None
+longsongs_file_lock = None
 
 
 # Inits global variables and locks, and gets access tokens for Spotify and Youtube APIs
