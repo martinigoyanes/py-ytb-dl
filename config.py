@@ -1,8 +1,9 @@
 import threading
 import helper
 import os
-from googleapiclient.discovery import build
 import spotify
+
+from googleapiclient.discovery import build
 
 downloaded_songs= None
 downloaded_songs_lock= None
@@ -14,18 +15,23 @@ youtube= None
 youtube_lock= None 
 client_id= None
 client_secret= None
-debug = None
 spoti = None
 longsongs_file_lock = None
 
+DEBUGG = None
+VERBOSE = None
+OUT_FOLDER = None
 
 # Inits global variables and locks, and gets access tokens for Spotify and Youtube APIs
-def init_globals(keynum, DEBUG=False):
+def init_globals(keynum):
     global downloaded_songs, downloaded_songs_lock,started_songs, started_songs_lock, error_file_lock, url_file_lock, youtube, client_id, client_secret
     global youtube_lock
-    global debug
     global spoti
     global longsongs_file_lock
+
+    global DEBUGG 
+    global VERBOSE
+    global OUT_FOLDER
     
 
     downloaded_songs_lock = threading.Lock()
@@ -38,13 +44,16 @@ def init_globals(keynum, DEBUG=False):
     started_songs = 0
     client_id = 'c6c3f6355e3349ce8160f0f2504e442b'
     client_secret = '2da4af43872a462ab652f579aa4b9d04'
-    debug = DEBUG
+
+    # Parse arguments into global variables
+    DEBUGG, VERBOSE, OUT_FOLDER = helper.argparser()
 
     #! Store keys in file which doesnt go to github so my keys are not stolen
     # Use 1st key first time, and if we need to download more stuff change keynum to 2 so we use the second key
     ytb_key = helper.read_ytb_key('keys.txt', keynum=keynum)
     youtube = build('youtube', 'v3', developerKey=ytb_key)
     
+    # Get spotify credentials through OAuth 2.0
     spoti = spotify.Spotify(client_id,client_secret)
     spoti.get_auth_code()
     spoti.get_tokens()

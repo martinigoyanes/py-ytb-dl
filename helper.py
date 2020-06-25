@@ -2,6 +2,8 @@ import song as Song
 import config
 import time
 import threading
+import argparse
+import math
 
 
 def read_ytb_key(file, keynum):
@@ -46,14 +48,14 @@ def pull_user_songs(last_song):
         offset += 20
     return song_list
 
-def download_songs(song_list,verbose=False):
+def download_songs(song_list):
     #* Launch thread for each song that searches the song and downloads it into mp3 file
     threads = []
     for song in song_list:
         #* Only try to download a song if it has not been downloaded yet
         if song.downloaded is False:
             with config.downloaded_songs_lock:
-                song.thread = threading.Thread(target=song.thread_handler, args=(len(song_list), verbose))
+                song.thread = threading.Thread(target=song.thread_handler, args=(len(song_list),))
                 song.thread.start()
                 threads.append(song.thread)
 
@@ -71,3 +73,25 @@ def download_songs(song_list,verbose=False):
                 threads.clear()
                 #* Sleep for 5 s untill we launch the next songs
                 # time.sleep(5)
+
+def argparser():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--DEBUGG", help="Runs the program in debugg mode.", action="store_true")
+    parser.add_argument("-v", "--verbose", help="Program logs to screen every action it takes.", action="store_true")
+    parser.add_argument("-o", "--output", help="Select destiation FOLDER of downloaded files.\n\
+                        Default: /Users/martin/Desktop/")
+    
+    args = parser.parse_args()
+    out_folder = args.output if args.output is not None else '/Users/martin/Desktop/'
+
+    return args.DEBUGG, args.verbose, out_folder
+
+def nice_time(secs):
+    minutes = round(math.floor(secs),0)/60
+    leftover_min = abs(minutes - math.floor(minutes))
+    minutes = minutes - leftover_min
+    seconds = round(abs(secs - math.floor(secs)) + round((60*leftover_min),0),0)
+    
+    sseconds = f'{int(seconds)}'if seconds > 10 else f'0{int(seconds)}'
+
+    return f'{int(minutes)}:{sseconds} min'

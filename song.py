@@ -3,6 +3,8 @@ import time
 import config
 import glob
 import os
+import helper
+
 from mutagen.id3 import ID3, APIC
 from mutagen.mp3 import EasyMP3
 from urllib.request import urlopen
@@ -20,8 +22,8 @@ class Song:
         self.fullname = name 
         for artist in artists:
             self.fullname += f' - {artist}'
-        self.outtemplate = f'/Users/martin/Desktop/{self.fullname}.%(ext)s' 
-        self.fullpath = f'/Users/martin/Desktop/{self.fullname}.mp3' 
+        self.outtemplate = f'{config.OUT_FOLDER}{self.fullname}.%(ext)s' 
+        self.fullpath = f'{config.OUT_FOLDER}{self.fullname}.mp3' 
         self.thread = None
         self.failed = False
         self.metadata = {
@@ -31,7 +33,7 @@ class Song:
         self.len_ms = len_ms
 
     # * Downloads video from youtube and transforms it into mp3 file, deletes original video
-    def download(self,song_list_len,verbose=True):
+    def download(self,song_list_len):
         with config.started_songs_lock:
             config.started_songs += 1
             print( self.name +" has started. [" + str(config.started_songs) + "/" +
@@ -47,7 +49,7 @@ class Song:
             ],
             'outtmpl' : self.outtemplate,
             'retries': 10,
-            'quiet': not verbose
+            'quiet': not config.VERBOSE
         }
 
         if self.failed is True:
@@ -67,16 +69,15 @@ class Song:
         self.video_url = [f'https://www.youtube.com/watch?v={video_id}']
         
         # For debugging
-        if config.debug:
+        if config.DEBUGG:
             album = self.metadata['album']
             cover_url = self.metadata['cover_url']
             with config.url_file_lock and open('video_urls.txt', 'a+') as url_file:
                 url_file.write(f'{self.name} %% {self.artists} %% {album} %% {cover_url} %% {self.video_url}\n')       
 
-    def thread_handler(self, song_list_len,verbose):
+    def thread_handler(self, song_list_len):
         try:
             self.search()
-            pass
         except Exception as e:
             print(f'ERROR while searching for {self.fullname}. Reason -> {str(e)}\n') 
             self.failed = True
@@ -84,7 +85,7 @@ class Song:
                 config.started_songs -= 1
             return
         try:
-            self.download(song_list_len, verbose=verbose)
+            self.download(song_list_len)
         except Exception as e:
             print(f'ERROR: Could NOT download {self.fullname}. Reason -> {str(e)}\n') 
 
@@ -94,11 +95,11 @@ class Song:
             with config.started_songs_lock:
                 config.started_songs -= 1
 
-            fileList = glob.glob(f'/Users/martin/Desktop/{self.fullname}*')
+            fileList = glob.glob(f'{config.OUT_FOLDER}{self.fullname}*')
             for filePath in fileList:
                 try:
                     os.remove(filePath)
-                    if verbose:
+                    if config.VERBOSE:
                         print(f'Deleted {filePath}\n')
 
                 except:
@@ -153,11 +154,9 @@ class Song:
         
         #* If song downloaded is 20 seconds longer than the Spotify version log it to a file and warn us 
         # (audio.len is in secs and spotify.len is in MILIsecs)
-        if abs((self.len_ms/1000) - audio.info.length) > 20:
+        diff = abs((self.len_ms/1000) - audio.info.length)  
+        if diff > 20:
             with config.longsongs_file_lock and open('long_songs.txt', 'a+') as longsongs_file:
-                print(f'WARNING: {self.fullname} might be too long') 
-                longsongs_file.write(f'{self.name} %% {self.artists} %% {self.metadata["album"]} %% {self.video_url}\n')       
-                
-
-
-            
+                print(f'WARNING: {self.fullname} is {helper.nice_time(diff)} longer than Spotify version') 
+                longsongs_file.write(f'{self.name} %% {helper.nice_time(audio.info.length)}(+{helper.nice_time(diff)}) %% {self.video_url}\n')       
+    

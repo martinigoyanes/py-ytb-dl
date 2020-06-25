@@ -1,13 +1,9 @@
 import time, helper, threading, config, spotify, song as Song
 # TODO: Add graphical interface
-# TODO: Parse the verbose option correctly
 # TODO: Automatically run behind the scenes and download the new songs u add to spoti
 
-VERBOSE = False
-DEBUG = False
-OUT_FOLDER = 'Users/martin/Desktop'
 #! Use 1st key first time, and if we need to download more stuff change keynum to 2 or 3 so we use the second key
-config.init_globals(keynum=1,DEBUG=DEBUG)
+config.init_globals(keynum=2)
 
 
 last_song = input('What is the last song (inclusive) from your library to download?\n')
@@ -22,9 +18,9 @@ while True:
     with config.downloaded_songs_lock:
         if config.downloaded_songs == len(song_list):
             break
-    helper.download_songs(song_list, verbose=VERBOSE) 
+    helper.download_songs(song_list) 
     for song in song_list:
-        if config.debug and song.failed:
+        if config.DEBUGG and song.failed:
             with config.error_file_lock and open('failed_songs.txt', 'a+') as error_file:
                 error_file.write(f'{song.name} %% {song.artists} %% {song.video_url}\n')       
         song.thread.join()
