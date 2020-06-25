@@ -6,7 +6,7 @@ Python app that takes your spotify saved songs and downloads them from youtube t
 
 optional arguments:
 
-  -h, --help<pre>          </pre>show this help message and exit
+  -h, --help<pre></pre>show this help message and exit
   
   --DEBUGG<pre>                         </pre>Runs the program in debugg mode.
   
