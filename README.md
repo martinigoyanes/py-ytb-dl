@@ -8,4 +8,4 @@ optional arguments:
   --DEBUGG              Runs the program in debugg mode.
   -v, --verbose         Program logs to screen every action it takes.
   -o OUTPUT, --output OUTPUT
-                        Select destiation FOLDER of downloaded files. Default: /Users/martin/Desktop/
+                        Select destiation FOLDER of downloaded files. Default: /Users/[$username]/Desktop/
