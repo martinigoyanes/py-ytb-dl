@@ -202,7 +202,7 @@
     </font>
    </property>
    <property name="styleSheet">
-    <string notr="true">color: rgb(238, 255, 0);</string>
+    <string notr="true">color: rgb(203, 220, 0);</string>
    </property>
    <property name="text">
     <string>Warnings</string>
