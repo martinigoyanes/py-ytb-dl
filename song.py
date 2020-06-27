@@ -156,7 +156,7 @@ class Song:
         # (audio.len is in secs and spotify.len is in MILIsecs)
         diff = abs((self.len_ms/1000) - audio.info.length)  
         if diff > 20:
-            with config.longsongs_file_lock and open('long_songs.txt', 'a+') as longsongs_file:
+            with config.longsongs_file_lock and open(config.OUT_FOLDER+'long_songs.txt', 'a+') as longsongs_file:
                 print(f'WARNING: {self.fullname} is {helper.nice_time(diff)} longer than Spotify version') 
                 longsongs_file.write(f'{self.name} %% {helper.nice_time(audio.info.length)}(+{helper.nice_time(diff)}) %% {self.video_url}\n')       
     

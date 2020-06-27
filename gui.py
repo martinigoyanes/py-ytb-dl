@@ -2,6 +2,10 @@ from PyQt5 import QtWidgets, QtGui, QtCore
 # from PyQt5.QtWidgets import QApplication, QMainWindow
 import myapp
 import sys
+from PyQt5.QtWidgets import QInputDialog
+
+#TODO: Log messages to the white boxes
+#TODO: Render the downloading bar
 
 class Ui_GUI(object):
     def setupUi(self, GUI):
@@ -19,8 +23,8 @@ class Ui_GUI(object):
 
         self.DLButton = QtWidgets.QPushButton(GUI)
         self.DLButton.setGeometry(QtCore.QRect(40, 370, 171, 32))
-        self.DLButton.setDefault(False)
         self.DLButton.setObjectName("DLButton")
+        self.DLButton.clicked.connect(self.start_download)
 
         self.SpotifyLoginButton = QtWidgets.QPushButton(GUI)
         self.SpotifyLoginButton.setGeometry(QtCore.QRect(671, 290, 141, 32))
@@ -30,27 +34,23 @@ class Ui_GUI(object):
         self.SpotifyLogo = QtWidgets.QLabel(GUI)
         self.SpotifyLogo.setGeometry(QtCore.QRect(720, 330, 81, 81))
         self.SpotifyLogo.setText("")
-        self.SpotifyLogo.setPixmap(QtGui.QPixmap("SpotiDL/spotify-logo.jpg"))
+        self.SpotifyLogo.setPixmap(QtGui.QPixmap("spotify-logo.jpg"))
         self.SpotifyLogo.setScaledContents(True)
         self.SpotifyLogo.setObjectName("SpotifyLogo")
 
-        self.OutputFolder = QtWidgets.QLabel(GUI)
-        self.OutputFolder.setGeometry(QtCore.QRect(400, 365, 121, 31))
-        font = QtGui.QFont()
-        font.setPointSize(16)
-        font.setBold(True)
-        font.setWeight(75)
-        self.OutputFolder.setFont(font)
-        self.OutputFolder.setFrameShape(QtWidgets.QFrame.Box)
-        self.OutputFolder.setLineWidth(2)
-        self.OutputFolder.setObjectName("OutputFolder")
+        self.OutputFolderValueButton = QtWidgets.QPushButton(GUI)
+        self.OutputFolderValueButton.setGeometry(QtCore.QRect(410, 390, 200, 30))
+        self.OutputFolderValueButton.setObjectName("OutputFolderValueButton")
+        self.OutputFolderValueButton.setText(myapp.config.OUT_FOLDER)
+        self.OutputFolderValueButton.clicked.connect(self.change_output_folder)
 
-        self.OutputFolderValue = QtWidgets.QLabel(GUI)
-        self.OutputFolderValue.setGeometry(QtCore.QRect(410, 400, 131, 21))
+        self.OutputFolderLabel = QtWidgets.QLabel(GUI)
+        self.OutputFolderLabel.setGeometry(QtCore.QRect(400, 365, 130, 31))
+        self.OutputFolderLabel.setObjectName("OutputFolderLabel")
         font = QtGui.QFont()
         font.setPointSize(14)
-        self.OutputFolderValue.setFont(font)
-        self.OutputFolderValue.setObjectName("OutputFolderValue")
+        font.setBold(True)
+        self.OutputFolderLabel.setFont(font)
 
         self.OptionsButton = QtWidgets.QPushButton(GUI)
         self.OptionsButton.setGeometry(QtCore.QRect(700, 260, 112, 32))
@@ -123,15 +123,27 @@ class Ui_GUI(object):
 
     def retranslateUi(self, GUI):
         _translate = QtCore.QCoreApplication.translate
-        GUI.setWindowTitle(_translate("GUI", "GUI"))
+        GUI.setWindowTitle(_translate("GUI", "Spotify Downloader"))
         self.DLButton.setText(_translate("GUI", "Start Downloading"))
         self.SpotifyLoginButton.setText(_translate("GUI", "Spotify Login"))
-        self.OutputFolder.setText(_translate("GUI", "Output Folder"))
+        self.OutputFolderLabel.setText(_translate("GUI", "Output Folder:"))
         self.OptionsButton.setText(_translate("GUI", "Options"))
         self.ProgessLabelTitle.setText(_translate("GUI", "Progress"))
         self.WarningLabelTitle.setText(_translate("GUI", "Warnings"))
         self.ErrorsLabelTitle.setText(_translate("GUI", "Errors"))
 
+    def start_download(self):
+        input = QInputDialog.getText(self.DLButton ,"Spotify Downloader", "What is the last song (inclusive) from your library to download?")
+        if input[1]:
+            import threading
+            threading.Thread(target=myapp.start_download, args=(input[0],)).start()
+
+    def change_output_folder(self):
+        input = QInputDialog.getText(self.OutputFolderValueButton ,"Spotify Downloader", "New output folder:")
+        if input[1]:
+            self.OutputFolderValueButton.setText(input[0])
+            self.OutputFolderValueButton.adjustSize()
+            myapp.config.OUT_FOLDER = input[0]
 
 if __name__ == "__main__":
     import sys

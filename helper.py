@@ -48,6 +48,33 @@ def pull_user_songs(last_song):
         offset += 20
     return song_list
 
+def pull_songs_from_file():
+    song_list = []
+    with open('video_urls.txt') as fp:
+        for _ in range(42):
+            song_data = fp.readline()[:-1].split(' %% ')
+            # Parsing song name
+            song_name = song_data[0]
+            # Parsing artists data
+            artists = song_data[1][1:-1]
+            artists = artists.split(',')
+            index = 0
+            for i in range(len(artists)):
+                if index == 0:
+                    artists[i] = artists[i][1:-1]
+                else:
+                    artists[i] = artists[i][2:-1]
+                index += 1
+            # Parsing album name
+            song_album = song_data[2]
+            # Parsing album cover url
+            song_cover = song_data[3]
+            # Parsing url data
+            url = [song_data[4][2:-2]]
+            song = Song.Song(song_name,url,artists,song_cover,song_album)
+            song_list.append(song)
+    return song_list
+    
 def download_songs(song_list):
     #* Launch thread for each song that searches the song and downloads it into mp3 file
     threads = []

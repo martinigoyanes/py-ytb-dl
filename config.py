@@ -17,8 +17,6 @@ client_id= None
 client_secret= None
 spoti = None
 longsongs_file_lock = None
-client_id = None
-client_secret = None
 
 DEBUGG = None
 VERBOSE = None
@@ -35,9 +33,6 @@ def init_globals(keynum):
     global VERBOSE
     global OUT_FOLDER
     
-    global client_id
-    global client_secret
-    
     downloaded_songs_lock = threading.Lock()
     started_songs_lock = threading.Lock()
     error_file_lock = threading.Lock()
@@ -48,6 +43,9 @@ def init_globals(keynum):
     started_songs = 0
     client_id = 'c6c3f6355e3349ce8160f0f2504e442b'
     client_secret = '2da4af43872a462ab652f579aa4b9d04'
+    DEBUG = False
+    VERBOSE = False
+    OUT_FOLDER = '/Users/martin/Desktop/'
 
     # Parse arguments into global variables
     # DEBUGG, VERBOSE, OUT_FOLDER = helper.argparser()
@@ -57,6 +55,9 @@ def init_globals(keynum):
     ytb_key = helper.read_ytb_key('keys.txt', keynum=keynum)
     youtube = build('youtube', 'v3', developerKey=ytb_key)
     
+    # Create global spotify instance
+    spoti = spotify.Spotify(client_id,client_secret)
+
     # * Delete failed_songs file and if exist at the beginning
     if os.path.exists('failed_songs.txt'):
         os.remove('failed_songs.txt')
