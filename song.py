@@ -36,8 +36,10 @@ class Song:
     def download(self,song_list_len):
         with config.started_songs_lock:
             config.started_songs += 1
-            print( self.name +" has started. [" + str(config.started_songs) + "/" +
-                  str(song_list_len) + "]" + " songs started downloading....")
+            # print( self.name +" has started. [" + str(config.started_songs) + "/" +
+            #       str(song_list_len) + "]" + " songs started downloading....")
+            with config.progress_label_lock:
+                config.progress_label = config.progress_label +  self.name +" has started. [" + str(config.started_songs) + "/" + str(song_list_len) + "]" + " songs started downloading...."
 
         params = {
             'format': 'bestaudio/best',
@@ -53,8 +55,9 @@ class Song:
         }
 
         if self.failed is True:
-            print(f'Retrying {self.fullname} ....')
-            
+            # print(f'Retrying {self.fullname} ....')
+            with config.progress_label_lock:
+                config.progress_label = config.progress_label + f'Retrying {self.fullname} ....'
         downloader = youtube_dl.YoutubeDL(params)
         downloader.download(self.video_url)
 
@@ -79,7 +82,10 @@ class Song:
         try:
             self.search()
         except Exception as e:
-            print(f'ERROR while searching for {self.fullname}. Reason -> {str(e)}\n') 
+            # print(f'ERROR while searching for {self.fullname}. Reason -> {str(e)}\n') 
+            with config.errors_label_lock:
+                config.errors_label = config.errors_label +f'ERROR while searching for {self.fullname}. Reason -> {str(e)}\n'
+
             self.failed = True
             with config.started_songs_lock:
                 config.started_songs -= 1
@@ -87,7 +93,9 @@ class Song:
         try:
             self.download(song_list_len)
         except Exception as e:
-            print(f'ERROR: Could NOT download {self.fullname}. Reason -> {str(e)}\n') 
+            # print(f'ERROR: Could NOT download {self.fullname}. Reason -> {str(e)}\n') 
+            with config.errors_label_lock:
+                config.errors_label = config.errors_label +f'ERROR: Could NOT download {self.fullname}. Reason -> {str(e)}\n'
 
 
             #* There has been an error so remove any data that has been downloaded so in next iter there's no confusion
@@ -100,10 +108,14 @@ class Song:
                 try:
                     os.remove(filePath)
                     if config.VERBOSE:
-                        print(f'Deleted {filePath}\n')
+                        with config.progress_label_lock:
+                            config.progress_label = config.progress_label +f'Deleted {filePath}\n'
+                        # print(f'Deleted {filePath}\n')
 
                 except:
-                    print("Error while deleting file : ", filePath)
+                    with config.progress_label_lock:
+                        config.progress_label = config.progress_label +"Error while deleting file : ", filePath
+                    # print("Error while deleting file : ", filePath)
 
         
         else:

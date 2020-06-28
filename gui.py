@@ -1,6 +1,8 @@
 from PyQt5 import QtWidgets, QtGui, QtCore
 # from PyQt5.QtWidgets import QApplication, QMainWindow
 import myapp
+import config
+import time
 import sys
 from PyQt5.QtWidgets import QInputDialog
 
@@ -20,6 +22,10 @@ class Ui_GUI(object):
         self.DLBar.setAutoFillBackground(True)
         self.DLBar.setProperty("value", 0)
         self.DLBar.setObjectName("DLBar")
+        
+        self.Percentage = QtWidgets.QLabel(GUI)
+        self.Percentage.setGeometry(QtCore.QRect(230, 332, 201, 51))
+        self.Percentage.setText("")
 
         self.DLButton = QtWidgets.QPushButton(GUI)
         self.DLButton.setGeometry(QtCore.QRect(40, 370, 171, 32))
@@ -137,6 +143,8 @@ class Ui_GUI(object):
         if input[1]:
             import threading
             threading.Thread(target=myapp.start_download, args=(input[0],)).start()
+            threading.Thread(target=self.update_progressbar).start()
+            threading.Thread(target=self.update_logs).start()
 
     def change_output_folder(self):
         input = QInputDialog.getText(self.OutputFolderValueButton ,"Spotify Downloader", "New output folder:")
@@ -144,6 +152,23 @@ class Ui_GUI(object):
             self.OutputFolderValueButton.setText(input[0])
             self.OutputFolderValueButton.adjustSize()
             myapp.config.OUT_FOLDER = input[0]
+
+    def update_progressbar(self):
+        while True:
+            time.sleep(0.5)
+            with config.downloaded_songs_lock:
+                percentage = (config.downloaded_songs/config.song_list_len)*100
+                self.DLBar.setValue(percentage)
+                self.Percentage.setText(f'{percentage}%')
+                if config.downloaded_songs == config.song_list_len:
+                    break
+    def update_logs(self):
+        while True:
+            time.sleep(0.1)
+            with config.progress_label_lock:
+                self.ProgressLabelContent.setText(config.progress_label)
+            with config.errors_label_lock:
+                self.ErrorsLabelContent.setText(config.errors_label)
 
 if __name__ == "__main__":
     import sys

@@ -5,7 +5,7 @@ import spotify
 
 from googleapiclient.discovery import build
 
-downloaded_songs= None
+downloaded_songs= 0
 downloaded_songs_lock= None
 started_songs= None
 started_songs_lock= None
@@ -17,6 +17,15 @@ client_id= None
 client_secret= None
 spoti = None
 longsongs_file_lock = None
+song_list_len = 1
+
+progress_label_lock = None
+warnings_label_lock = None
+errors_label_lock   = None
+
+progress_label = ""
+warnings_label = ""
+errors_label = ""
 
 DEBUGG = None
 VERBOSE = None
@@ -32,6 +41,16 @@ def init_globals(keynum):
     global DEBUGG 
     global VERBOSE
     global OUT_FOLDER
+
+    global song_list_len 
+
+    global progress_label
+    global warnings_label
+    global errors_label 
+
+    global progress_label_lock
+    global warnings_label_lock
+    global errors_label_lock
     
     downloaded_songs_lock = threading.Lock()
     started_songs_lock = threading.Lock()
@@ -39,6 +58,10 @@ def init_globals(keynum):
     url_file_lock = threading.Lock()
     longsongs_file_lock = threading.Lock()
     youtube_lock = threading.Lock()
+    progress_label_lock= threading.Lock()
+    warnings_label_lock= threading.Lock()
+    errors_label_lock= threading.Lock()
+
     downloaded_songs = 0
     started_songs = 0
     client_id = 'c6c3f6355e3349ce8160f0f2504e442b'

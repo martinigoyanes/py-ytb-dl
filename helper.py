@@ -46,6 +46,8 @@ def pull_user_songs(last_song):
         spoti_saved_tracks = config.spoti.get_tracks_json(limit=limit, offset=offset)
         finished = json_to_song_list(spoti_saved_tracks, last_song, song_list)
         offset += 20
+    
+    config.song_list_len = len(song_list)
     return song_list
 
 def pull_songs_from_file():
@@ -74,7 +76,7 @@ def pull_songs_from_file():
             song = Song.Song(song_name,url,artists,song_cover,song_album)
             song_list.append(song)
     return song_list
-    
+
 def download_songs(song_list):
     #* Launch thread for each song that searches the song and downloads it into mp3 file
     threads = []
@@ -91,9 +93,12 @@ def download_songs(song_list):
                 with config.started_songs_lock:
                     diff = len(song_list) - config.started_songs < 10
                     left = diff if diff else 10
-                    print("\n\n\n [" + str(config.started_songs) + "/" + str(len(song_list)) + "]"
-                          + " songs started to download.\n Waiting untill they are done to start downloading the following "
-                          + str(left) + " ones \n\n\n")
+                    # print("\n\n\n [" + str(config.started_songs) + "/" + str(len(song_list)) + "]"
+                    #       + " songs started to download.\n Waiting untill they are done to start downloading the following "
+                    #       + str(left) + " ones \n\n\n")
+                    
+                    with config.progress_label_lock:
+                        config.progress_label = config.progress_label + "\n\n\n [" + str(config.started_songs) + "/" + str(len(song_list)) + "]" + " songs started to download.\n Waiting untill they are done to start downloading the following " + str(left) + " ones \n\n\n"
                 for thread in threads:
                     thread.join()
                 
