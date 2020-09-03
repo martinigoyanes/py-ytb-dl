@@ -1,0 +1,5 @@
+#!/bin/sh
+
+cd /Users/martin/repos/py-ytb-dl/
+python3 /Users/martin/repos/py-ytb-dl/main.py
+
