@@ -45,21 +45,26 @@ def init_globals(keynum):
     client_id = 'c6c3f6355e3349ce8160f0f2504e442b'
     client_secret = '2da4af43872a462ab652f579aa4b9d04'
 
-    # Parse arguments into global variables
-    DEBUGG, VERBOSE, OUT_FOLDER = helper.argparser()
+    try:
+        # Parse arguments into global variables
+        DEBUGG, VERBOSE, OUT_FOLDER = helper.argparser()
 
-    #! Store keys in file which doesnt go to github so my keys are not stolen
-    # Use 1st key first time, and if we need to download more stuff change keynum to 2 so we use the second key
-    ytb_key = helper.read_ytb_key('keys.txt', keynum=keynum)
-    youtube = build('youtube', 'v3', developerKey=ytb_key)
-    
-    # Get spotify credentials through OAuth 2.0
-    spoti = spotify.Spotify(client_id,client_secret)
-    spoti.get_auth_code()
-    spoti.get_tokens()
+        #! Store keys in file which doesnt go to github so my keys are not stolen
+        # Use 1st key first time, and if we need to download more stuff change keynum to 2 so we use the second key
+        ytb_key = helper.read_ytb_key('keys.txt', keynum=keynum)
+        youtube = build('youtube', 'v3', developerKey=ytb_key)
+        
+        # Get spotify credentials through OAuth 2.0
+        spoti = spotify.Spotify(client_id,client_secret)
+        spoti.get_auth_code()
+        spoti.get_tokens()
 
-    # * Delete failed_songs file and if exist at the beginning
-    if os.path.exists('failed_songs.txt'):
-        os.remove('failed_songs.txt')
-    if os.path.exists('long_songs.txt'):
-        os.remove('long_songs.txt')
+        # * Delete failed_songs file and if exist at the beginning
+        if os.path.exists('failed_songs.txt'):
+            os.remove('failed_songs.txt')
+        if os.path.exists('long_songs.txt'):
+            os.remove('long_songs.txt')
+    except:
+        return -1
+
+    return 0

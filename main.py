@@ -1,12 +1,21 @@
-import time, helper, threading, config, spotify, song as Song
+import time
+import helper
+import threading
+import config
+import spotify
+import song as Song
 # TODO: Add graphical interface
 # TODO: Automatically run behind the scenes and download the new songs u add to spoti
 
 #! Use 1st key first time, and if we need to download more stuff change keynum to 2 or 3 so we use the second key
-config.init_globals(keynum=1)
+for keynum in range(1,5):
+    if config.init_globals(keynum=keynum) == 0:
+        print(f'Using key number: {keynum}')
+        break
 
 
-last_song = input('What is the last song (inclusive) from your library to download?\n')
+last_song = input(
+    'What is the last song (inclusive) from your library to download?\n')
 song_list = helper.pull_user_songs(last_song)
 
 # Keep downloading untill all of the songs are downloaded
@@ -18,16 +27,16 @@ while True:
     with config.downloaded_songs_lock:
         if config.downloaded_songs == len(song_list):
             break
-    helper.download_songs(song_list) 
+    helper.download_songs(song_list)
     for song in song_list:
         if config.DEBUGG and song.failed:
             with config.error_file_lock and open('failed_songs.txt', 'a+') as error_file:
-                error_file.write(f'{song.name} %% {song.artists} %% {song.video_url}\n')       
+                error_file.write(
+                    f'{song.name} %% {song.artists} %% {song.video_url}\n')
         song.thread.join()
 
 
-
-## For testing with the url set i have
+# For testing with the url set i have
 ##################################
 # song_list = []
 # with open('video_urls.txt') as fp:
@@ -35,10 +44,10 @@ while True:
 #         song_data = fp.readline()[:-1].split(' %% ')
 #         # Parsing song name
 #         song_name = song_data[0]
-#         # Parsing artists data 
+#         # Parsing artists data
 #         artists = song_data[1][1:-1]
 #         artists = artists.split(',')
-#         index = 0 
+#         index = 0
 #         for i in range(len(artists)):
 #             if index == 0:
 #                 artists[i] = artists[i][1:-1]
@@ -50,14 +59,7 @@ while True:
 #         # Parsing album cover url
 #         song_cover = song_data[3]
 #         # Parsing url data
-#         url = [song_data[4][2:-2]] 
+#         url = [song_data[4][2:-2]]
 #         song = Song.Song(song_name,url,artists,song_cover,song_album)
 #         song_list.append(song)
 ##################################
-
-
-
-    
-        
-
-

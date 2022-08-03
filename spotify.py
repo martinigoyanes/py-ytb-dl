@@ -2,6 +2,7 @@ import webbrowser, requests, base64, time
 
 from urllib.parse import urlencode, urlsplit
 from selenium import webdriver
+from webdriver_manager.chrome import ChromeDriverManager
 
 class Spotify:
     id = None
@@ -20,14 +21,15 @@ class Spotify:
         auth_body = {
             'client_id': self.id,
             'response_type': 'code',
-            'redirect_uri': 'https://www.spotify.com/es/',
+            # 'redirect_uri': 'https://www.spotify.com/es/',
+            'redirect_uri': 'http://localhost:8888/callback',
             'scope': 'user-library-read'
         }
         auth_body_urlencoded = urlencode(auth_body)
         auth_url = f"{auth_endpoint}?{auth_body_urlencoded}"
         # webbrowser.open(auth_url)
         # self.auth_code = input('Authentication code:\n')
-        driver = webdriver.Chrome()
+        driver = webdriver.Chrome(ChromeDriverManager().install())
         driver.get(auth_url)
         code_url = '' 
         code = urlsplit(code_url)
@@ -42,7 +44,7 @@ class Spotify:
         tokens_body = {
             'grant_type': 'authorization_code',
             'code': self.auth_code,
-            'redirect_uri': 'https://www.spotify.com/es/'
+            'redirect_uri': 'http://localhost:8888/callback'
         }
         client_creds_b64 = base64.b64encode(f'{self.id}:{self.secret}'.encode())
         tokens_headers = {
