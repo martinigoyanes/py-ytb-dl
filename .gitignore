@@ -1,2 +1,4 @@
 keys.txt
 video_urls.txt
+env/*
+__pycache__/*
